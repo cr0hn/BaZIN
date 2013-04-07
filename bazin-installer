@@ -72,7 +72,7 @@ fi
 #
 # Configure the system
 #
-dialog --title "$TITLE: Configure" --yesno "Would you like to allow BaZIN to configure your system?" 5 50
+dialog --title "$TITLE: Configure" --yesno "Would you like to allow BaZIN to configure your system?" 8 60
 if [ $? -eq 0 ]; then # Yes
 	# Create etc dir
 	dialog --title "$TITLE" --infobox "Creating dir: ${BASE_DIR}/etc" 3 40; sleep 1
@@ -89,7 +89,7 @@ fi
 #
 # Install svn, ports and source
 #
-dialog --title "$TITLE: Install Base" --yesno "Would you like to allow BaZIN to install subversion for download new port and FreeBSD source system" 5 50
+dialog --title "$TITLE: Install Base" --yesno "Would you like to allow BaZIN to install subversion for download new port and FreeBSD source system" 8 50
 if [ $? -eq 0 ]; then # Yes
 	dialog --title "$TITLE" --infobox "\nInstalling base system\n" 5 34; sleep 1
 
@@ -104,19 +104,19 @@ fi
 #
 # Hardening
 #
-dialog --title "$TITLE: Hardening system" --yesno "Would you like to allow BaZIN to hardening your system?" 5 60
+dialog --title "$TITLE: Hardening system" --yesno "Would you like to allow BaZIN to hardening your system?" 8 60
 if [ $? -eq 0 ]; then # Yes
 	dialog --title "$TITLE" --infobox "\nHardening the system\n" 5 34; sleep 1
 	sh base/hardening / # Hardening base system
 fi
 
-dialog --title "$TITLE: Hardening jails" --yesno "Would you like to allow BaZIN to hardening your jails?" 5 60
+dialog --title "$TITLE: Hardening jails" --yesno "Would you like to allow BaZIN to hardening your jails?" 8 60
 if [ $? -eq 0 ]; then # Yes
 	dialog --title "$TITLE" --infobox "\nHardening the jails\n" 5 34; sleep 1
 	sh base/hardening ${BASE_DIR} # Hardening base jail
 fi
 
-dialog --title "$TITLE: Hardening kernel" --yesno "Would you like to allow BaZIN to hardening your kernel?" 5 60
+dialog --title "$TITLE: Hardening kernel" --yesno "Would you like to allow BaZIN to hardening your kernel?" 8 60
 if [ $? -eq 0 ]; then # Yes
 	dialog --title "$TITLE" --infobox "\nHardening the kernel\n" 5 34; sleep 1
 	sh base/hardening_kernel ${BASE_DIR} # Hardening kernel
@@ -127,7 +127,7 @@ fi
 #
 dialog --title "$TITLE: Apps" --yesno "Would you like to install apps now?" 5 60
 if [ $? -eq 0 ]; then # Yes
-	sh bazin-app-installer
+	sh bazin-app-installer $BASE_DIR ${BASE_DIR}/ports
 fi
 
 
