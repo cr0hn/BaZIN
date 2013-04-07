@@ -19,6 +19,7 @@ What gives?
 ===========
 
 The project provide an easy way to:
+- Simulation mode.
 - Apply ASLR Patch to FreeBSD kernel.
 - Easy instalation of the infrastructure.
 - Easy way to hardening of system.
