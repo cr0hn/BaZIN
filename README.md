@@ -34,3 +34,10 @@ TODO
 - Fix issues.
 - More adjust of configuration files.
 - Any other good idea.
+
+Thanks
+======
+
+Many thanks to:
+- @capi_x for their help.
+
