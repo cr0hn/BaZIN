@@ -1,0 +1,230 @@
+#!/bin/sh
+
+#
+# Check imput params
+#
+if [ $# -ne 2 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	Nginx server installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 PATH_INSTALL PORT_DIR\n\
+        " 10 60
+	exit
+fi
+
+#
+# Set vars
+#
+# Remove last /
+PATH_INSTALL=`echo $1 | sed 's/\/$//'g`
+PORT_DIR=`echo $2 | sed 's/\/$//'g`
+CURR_PATH=`pwd`
+
+#
+# Set logs files
+#
+if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
+	export LOG="${CURR_PATH}/info.log"
+	export ERROR="${CURR_PATH}/error.log"	
+fi
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN - Nginx installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN - Nginx installer (SIMULATION)"
+        else
+                export TITLE="BaZIN - Nginx installer"
+        fi
+else
+   export TITLE="BaZIN - Nginx installer (SIMULATION)"	
+fi
+
+
+#
+# Check the existence of dirs
+#
+if [ ! -d $PORT_DIR ] || [ ! -d $PATH_INSTALL  ] && [ "$SIMULATE" != "yes" ]; then
+	dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "- $PORT_DIR\nor\n- $PATH_INSTALL\nNot exits" 8 60
+	exit
+fi 
+
+#
+# Config
+#
+dialog --title "$TITLE" --msgbox "\
+To avoid errors, you must install nginx without rewrite module. Unset these flag!!\n\n\
+(nginx will be compiled statically)\
+" 8 60
+
+dialog --title "$TITLE" --yesno "Would you like to apply anti-fingerprint techinques?" 5 60
+if [ $? -eq 0 ]; then # Yes
+
+	cd $PORT_DIR/www/nginx
+
+	dialog --title "$TITLE" --radiolist "Do you want to look like?" 18 60 11 \
+	 1 "Apache tomcat 5" on \
+	 2 "Apache tomcat 6" off \
+	 3 "Apache tomcat 7" off \
+	 20 "Internet Information Server (IIS) 5" off \
+	 21 "Internet Information Server (IIS) 6" off \
+	 22 "Internet Information Server (IIS) 7.5" off \
+	 30 "Apache 2.2" off \
+	 31 "Apache 2.4" off \
+	 40 "WebSphere Application Server v8" off \
+	 41 "WebSphere Application Server v7" off \
+	 42 "lighttpd v2" off 2> .result.tmp
+
+
+	case $(cat .result.tmp) in
+		# Tomcat
+		1)
+			BANNER="Apache Tomcat/"
+			VERSION="5.0"
+			;;
+		2)
+			BANNER="Apache Tomcat/"
+			VERSION="6.0"
+			;;
+		3)
+			BANNER="Apache Tomcat/"
+			VERSION="7.0"
+			;;
+		# IIS
+		20)
+			BANNER="Microsoft-IIS/"
+			VERSION="5.0"
+			;;
+		21)
+			BANNER="Microsoft-IIS/"
+			VERSION="6.0"
+			;;			
+		22)
+			BANNER="Microsoft-IIS/"
+			VERSION="7.5"
+			;;
+		# Apache		
+		30)
+			BANNER="Apache/"
+			VERSION="2.2"
+			;;
+		31)
+			BANNER="Apache/"
+			VERSION="2.4"
+			;;
+		# WebSphere
+		40)
+			BANNER="WebSphere Application Server/"
+			VERSION="8.0"
+			;;
+		41)
+			BANNER="WebSphere Application Server/"
+			VERSION="7.0"
+			;;
+		# lighttpd
+		50)
+			BANNER="lighttpd/"
+			VERSION="2.0.0"
+			;;
+		*)
+			echo "[!] Selected options are not valid!"
+			exit 0
+
+		esac												
+
+	echo "[*] Creating patch"
+	# Get server version
+	ORIGINAL_VERSION=`cat distinfo | grep -i \(nginx- | head -n 1 | awk '{print $2}' | awk -F "(" '{print $2}' | awk -F ")" '{print $1}' | awk -F "-" '{print $2}' | awk -F "." '{print $1"."$2"."$3}'`
+
+	if [ "$SIMULATE" != "yes" ]; then
+		echo -e "\
+		*** src/core/nginx.h	Tue Apr  2 00:32:03 2013\n\
+		--- src/core/nginx.h.orig	Tue Apr  2 00:12:38 2013\n\
+		***************\n\
+		*** 10,17 ****\n\
+		\n\
+		\n\
+		  #define nginx_version      1002007\n\
+		! #define NGINX_VERSION      \"${ORIGINAL_VERSION}\"\n\
+		! #define NGINX_VER          \"nginx/\" NGINX_VERSION\n\
+		\n\
+		  #define NGINX_VAR          \"NGINX\"\n\
+		  #define NGX_OLDPID_EXT     \".oldbin\"\n\
+		--- 10,17 ----\n\
+		\n\
+		\n\
+		  #define nginx_version      1002007\n\
+		! #define NGINX_VERSION      \"${VERSION}\"\n\
+		! #define NGINX_VER          \"${BANNER}\" NGINX_VERSION\n\
+		\n\
+		  #define NGINX_VAR          \"NGINX\"\n\
+		  #define NGX_OLDPID_EXT     \".oldbin\"\n\
+		\n\
+		" > files/patch-nginx.h
+	fi
+
+	
+fi
+
+#
+# Patch make.conf
+#
+dialog --title "$TITLE" --infobox "Patching make.conf file\n\n(original will be restored)" 8 40; sleep 2
+if [ "$SIMULATE" != "yes" ]; then
+	cp /etc/make.conf /etc/make.conf.backup
+	echo -e "\n\
+	WITHOUT_X11=YES\n\
+	BUILD_OPTIMIZED=YES\n\
+	WITH_CPUFLAGS=YES\n\
+	WITH_OPTIMIZED_CFLAGS=YES\n\
+	WITHOUT_DEBUG=YES\n\
+	BUILD_STATIC=YES\n\
+	" >> /etc/make.conf
+fi
+
+#
+# Compile
+#
+dialog --title "$TITLE" --infobox "Compiling (this can take some time)" 4 40; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 install clean >> $LOG 2>> $ERROR &
+	dialog --exit-label "Ok" --tailbox $LOG 20 80
+fi
+
+#
+# Fixes
+#
+dialog --title "$TITLE" --infobox "Fixing some dirs" 4 40; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+	rm -rf $PATH_INSTALL/bin
+	rm -rf $PATH_INSTALL/include
+	rm -rf $PATH_INSTALL/lib
+	rm -rf $PATH_INSTALL/info
+	rm -rf $PATH_INSTALL/libdata
+	rm -rf $PATH_INSTALL/libexec
+	rm -rf $PATH_INSTALL/share/aclocal
+	rm -rf $PATH_INSTALL/share/sgml
+	rm -rf $PATH_INSTALL/share/dict
+	rm -rf $PATH_INSTALL/share/skel
+	rm -rf $PATH_INSTALL/share/doc
+	rm -rf $PATH_INSTALL/share/xml
+	rm -rf $PATH_INSTALL/share/emacs
+	rm -rf $PATH_INSTALL/share/java
+	rm -rf $PATH_INSTALL/share/misc
+	rm -rf $PATH_INSTALL/share/pixmaps
+fi
+
+#
+# Restoring
+#
+dialog --title "$TITLE" --infobox "Restoring make.conf file" 4 40; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+	mv /etc/make.conf.backup /etc/make.conf
+fi
+
+#
+# Restore current dir
+#
+cd $CURR_PATH

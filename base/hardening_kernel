@@ -1,0 +1,56 @@
+#!/bin/sh
+
+#
+# Check imput params
+#
+if [ $# -ne 1 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	FreeBSD installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 SRC_DIR \n\
+        " 10 60
+	exit
+fi
+
+#
+# Set vars
+#
+# Remove last /
+SRC_DIR=`echo $1 | sed 's/\/$//'g`
+CURR_PATH=`pwd`
+
+#
+# Set logs files
+#
+if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
+	export LOG="${CURR_PATH}/info.log"
+	export ERROR="${CURR_PATH}/error.log"	
+fi
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN - Hardener" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN - Hardener (SIMULATION)"
+        else
+                export TITLE="BaZIN - Hardener"
+        fi
+else
+   export TITLE="BaZIN - Hardener (SIMULATION)"	
+fi
+
+
+dialog --title "$TITLE" --yesno "Would you like to install ASLR patch for kernel?\n\nPlease note that this patch is NOT OFFICIAL.\n\nYou can find more info in:\n- http://www.haibane.org/node/11\n- http://forums.freebsd.org/showthread.php?p=205078" 12 65; sleep 1
+if [ $? -eq 0 ]; then # Yes
+    if [ "$SIMULATE" != "yes" ]; then
+        cd $SRC_DIR
+        fetch http://lists.freebsd.org/pipermail/freebsd-current/attachments/20111116/b67a9b75/randomize-stack-and-mmap.bin
+        patch -p1 < randomize-stack-and-mmap.bin
+        rm -rf randomize-stack-and-mmap.bin
+    fi
+fi
+dialog --title "$TITLE" --msgbox "Patch applied. Now you must to recompile and reinstall the kernel" 6 65; sleep 1
+
+cd $CURR_PATH

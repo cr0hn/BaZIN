@@ -1,0 +1,127 @@
+#!/bin/sh
+
+#
+# Check imput params
+#
+if [ $# -ne 3 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	FreeBSD installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 CURRENT_PORTS_DIR PORTS_DST SYSTEM_SRC_DEST\n\
+        " 10 60
+	exit
+fi
+
+#
+# Set vars
+#
+# Remove last /
+CURRENT_PORTS_DIR=`echo $1 | sed 's/\/$//'g`
+PORTS_DST=`echo $2 | sed 's/\/$//'g`
+SRC_DIR=`echo $3 | sed 's/\/$//'g`
+CURR_PATH=`pwd`
+
+#
+# Set logs files
+#
+if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
+	export LOG="${CURR_PATH}/info.log"
+	export ERROR="${CURR_PATH}/error.log"	
+fi
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN - Base installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN - Base installer (SIMULATION)"
+        else
+                export TITLE="BaZIN - Base installer"
+        fi
+else
+   export TITLE="BaZIN - Base installer (SIMULATION)"	
+fi
+
+#
+# Check the existence of dirs
+#
+if [ ! -d $PORTS_DST ] || [ ! -d $SRC_DIR  ] || [ ! -d $CURRENT_PORTS_DIR ] && [ "$SIMULATE" != "yes" ]; then
+	dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "- \n$CURRENT_PORTS_DIR\n-$PORTS_DST\n or \n-$SRC_DIR not exits" 8 60
+	exit
+fi
+
+#
+# Install subversion
+#
+dialog --title "$TITLE" --infobox "Checking exitence of subversion" 3 40; sleep 1
+e=`svn -h > /dev/null 2>&1 || echo "yes"`
+if [ "$e" == "yes" ]; then
+	dialog --title "$TITLE: Install subversion" --msgbox "Now will configure subversion..." 5 50
+	cd ${CURRENT_PORTS_DIR}/devel/subversion
+	make config-recursive
+	dialog --title "$TITLE: Install subversion" --infobox "Install subversion\n\nThis can take some time" 5 50; sleep 1	
+	if [ "$SIMULATE" != "yes" ]; then
+		make install clean distclean >> $LOG 2>> $ERROR
+	else
+		sleep 2
+	fi
+fi 
+
+#
+# System sources
+#
+# Check for sources
+if [ -d $SRC_DIR ]; then
+	dialog --title "$TITLE: System sources" --yesno "Source dir '$SRC_DIR' already exits. Would you like to backup to '${SRC_DIR}.old' and reinstall the source system?" 5 50
+	if [ $? -eq 0 ]; then # Yes
+		if [ "$SIMULATE" != "yes" ]; then	
+			mv $SRC_DIR ${SRC_DIR}.old
+		fi
+	fi
+fi
+
+# Download source system
+dialog --title "$TITLE: Download sources" --msgbox "Install src system, using subversion, at directory: $SRC_DIR\n\nTHIS WILL TAKE A LOT OF TIME" 8 50
+if [ "$SIMULATE" != "yes" ]; then
+	#### TODO: Add list of mirrors
+	svn co svn://svn.freebsd.org/base/head $SRC_DIR >> $LOG 2>> $ERROR &
+	dialog --exit-label "Ok" --tailbox $LOG 20 80	
+else
+	sleep 2
+fi
+
+#
+# Ports
+#
+# Check for ports
+if [ -d $PORTS_DST ]; then
+	dialog --title "$TITLE: Ports" --yesno "Ports dir '$PORTS_DST' already exits. Would you like to backup to '${PORTS_DST}.old' and reinstall the port system?" 5 50
+	if [ $? -eq 0 ]; then # Yes
+		if [ "$SIMULATE" != "yes" ]; then	
+			mv $PORTS_DST ${PORTS_DST}.old
+		fi
+	else
+		dialog --title "$TITLE: Ports" --yesno "Would you like to make a hard link to your existing sources?\n\n(If you are not sure select 'Yes')" 5 50
+		if [ $? -eq 0 ]; then # Yes
+			if [ "$SIMULATE" != "yes" ]; then
+				ln -s $CURRENT_PORTS_DIR $PORTS_DST
+			fi
+		else 
+			dialog --title "$TITLE: Ports" --ok-label "Exit" --msgbox "You need a ports sources!" 5 40
+		fi		
+	fi
+fi
+
+# Download port
+dialog --title "$TITLE: Download ports" --msgbox "Install new ports system, using subversion, at directory: $SRC_DIR\n\nTHIS WILL TAKE A LOT OF TIME" 8 50
+if [ "$SIMULATE" != "yes" ]; then	
+	#### TODO: Add list of mirrors
+	svn checkout svn://svn.freebsd.org/ports/head $PORTS_DST >> $LOG 2>> $ERROR &
+	dialog --exit-label "Ok" --tailbox $LOG 20 80
+fi
+
+#
+# Restore dir
+#
+cd $CURR_PATH

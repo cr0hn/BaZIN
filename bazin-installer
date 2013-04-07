@@ -1,0 +1,137 @@
+#!/bin/sh
+
+# Check shell type
+#if [ "$SHELL" != "/bin/bash" ] || [ "$SHELL" != "/bin/sh" ]; then
+#	dialog --title "BaZIN Error" --msgbox "Detected '$SHELL' shell.\n\nYou need a bash compatible shell.\n\nTry typing sh $0" 10 40
+#	exit
+#fi
+
+#
+# Check for permissions
+#
+if [ `id -g` -ne 0 ]; then
+	dialog --title "BaZIN" --ok-label "Exit" --msgbox "You must be root to run BaZIN" 10 40
+	exit
+fi
+
+#
+# Display Advertisement
+#
+dialog  --title "BaZIN : Advertisement" --yesno "FreeBSD installer by cr0hn (@gganiel)\n\n\
+Special thanks, for their help, to: \n\
+- @capi_x\n\n
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR **AS IS** AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.\n\n\
+Do you accept these terms?" 17 50
+
+if [ $? -eq 1 ]; then
+	exit
+fi
+
+#
+# Set log files
+#
+export LOG="`pwd`/info.log"
+export ERROR="`pwd`/error.log"
+
+#
+# Set simulate
+#
+dialog --title "BaZIN: Installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+if [ $? -eq 0 ]; then # Yes
+	export SIMULATE="yes"
+	export TITLE="BaZIN - Installer (SIMULATION)"
+else
+	export TITLE="BaZIN - Installer"
+fi
+
+#
+# Create base dir
+#
+dialog --title "Wellcome to $TITLE" --inputbox "Please provide the base dir to install" 10 50 2> .result.tmp
+# Remove last / from base dir
+BASE_DIR=`cat .result.tmp | sed 's/\/$//'g`
+
+#
+# Create dir if not exits
+#
+if [ ! -d $BASE_DIR ]; then
+	dialog --title "$TITLE" --yesno "$BASE_DIR does not exist. Would you like to create it?" 10 40
+	if [ $? -eq 0 ]; then # Yes
+		dialog --title "$TITLE" --infobox "Creating base dir" 3 34; sleep 1
+		if [ "$SIMULATE" != 'yes' ]; then
+			mkdir $BASE_DIR
+		fi
+	else # No
+		dialog --title "$TITLE" --ok-label "Exit" --msgbox "Can't continue with the installation" 10 40
+		exit
+	fi
+fi
+
+#
+# Configure the system
+#
+dialog --title "$TITLE: Configure" --yesno "Would you like to allow BaZIN to configure your system?" 5 50
+if [ $? -eq 0 ]; then # Yes
+	# Create etc dir
+	dialog --title "$TITLE" --infobox "Creating dir: ${BASE_DIR}/etc" 3 40; sleep 1
+	if [ "$SIMULATE" != "yes" ]; then
+		mkdir ${BASE_DIR}/etc
+	fi
+
+	dialog --title "$TITLE" --infobox "\nConfiguring system\n\n" 5 34; sleep 1
+	# configurer BASE_DIRECTORY
+	sh base/configurer ${BASE_DIR}/etc
+fi
+
+
+#
+# Install svn, ports and source
+#
+dialog --title "$TITLE: Install Base" --yesno "Would you like to allow BaZIN to install subversion for download new port and FreeBSD source system" 5 50
+if [ $? -eq 0 ]; then # Yes
+	dialog --title "$TITLE" --infobox "\nInstalling base system\n" 5 34; sleep 1
+
+	if [ "$SIMULATE" != "yes" ]; then
+		mkdir ${BASE_DIR}/ports
+		mkdir ${BASE_DIR}/src
+	fi
+	# install_system CURRENT_PORTS_DIR PORTS_DST SYSTEM_SRC_DEST	
+	sh base/install_base /usr/ports ${BASE_DIR}/ports ${BASE_DIR}/ports
+fi
+
+#
+# Hardening
+#
+dialog --title "$TITLE: Hardening system" --yesno "Would you like to allow BaZIN to hardening your system?" 5 60
+if [ $? -eq 0 ]; then # Yes
+	dialog --title "$TITLE" --infobox "\nHardening the system\n" 5 34; sleep 1
+	sh base/hardening / # Hardening base system
+fi
+
+dialog --title "$TITLE: Hardening jails" --yesno "Would you like to allow BaZIN to hardening your jails?" 5 60
+if [ $? -eq 0 ]; then # Yes
+	dialog --title "$TITLE" --infobox "\nHardening the jails\n" 5 34; sleep 1
+	sh base/hardening ${BASE_DIR} # Hardening base jail
+fi
+
+dialog --title "$TITLE: Hardening kernel" --yesno "Would you like to allow BaZIN to hardening your kernel?" 5 60
+if [ $? -eq 0 ]; then # Yes
+	dialog --title "$TITLE" --infobox "\nHardening the kernel\n" 5 34; sleep 1
+	sh base/hardening_kernel ${BASE_DIR} # Hardening kernel
+fi
+
+#
+# Install apps
+#
+dialog --title "$TITLE: Apps" --yesno "Would you like to install apps now?" 5 60
+if [ $? -eq 0 ]; then # Yes
+	sh bazin-app-installer
+fi
+
+
+#
+# Delete temporal files
+#
+rm .result.tmp

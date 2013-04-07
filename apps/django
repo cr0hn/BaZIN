@@ -1,0 +1,137 @@
+#!/bin/sh
+
+#
+# Check imput params
+#
+if [ $# -ne 2 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	Nginx server installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 PATH_TO_INSTALL PORT_DIR\n\
+        " 10 60
+	exit
+fi
+
+#
+# Set vars
+#
+# Remove last /
+PATH_INSTALL=`echo $1 | sed 's/\/$//'g`
+PORT_DIR=`echo $2 | sed 's/\/$//'g`
+CURR_PATH=`pwd`
+
+#
+# Set logs files
+#
+if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
+	export LOG="${CURR_PATH}/info.log"
+	export ERROR="${CURR_PATH}/error.log"	
+fi
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN - Django installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN - Django installer (SIMULATION)"
+        else
+                export TITLE="BaZIN - Django installer"
+        fi
+else
+   export TITLE="BaZIN - Django installer (SIMULATION)"	
+fi
+ 
+#
+# Check the existence of dirs
+#
+if [ ! -d $PORT_DIR ] || [ ! -d $PATH_INSTALL  ] && [ "$SIMULATE" != "yes" ]; then
+	dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "- $PORT_DIR\nor\n- $PATH_INSTALL\nNot exits" 8 60
+	exit
+fi 
+ 
+
+#
+# Patch make.conf
+#
+dialog --title "$TITLE" --infobox "Patching make.conf file\n\n(original will be restored)" 8 40; sleep 2
+if [ "$SIMULATE" != "yes" ]; then
+	cp /etc/make.conf /etc/make.conf.backup
+	echo -e "\n\
+	WITHOUT_X11=YES\n\
+	BUILD_OPTIMIZED=YES\n\
+	WITH_CPUFLAGS=YES\n\
+	WITH_OPTIMIZED_CFLAGS=YES\n\
+	WITHOUT_DEBUG=YES\n\
+	BUILD_STATIC=YES\n\
+	" >> /etc/make.conf
+fi 
+
+#
+# Compiling start
+#
+dialog --title "$TITLE" --msgbox "\nNow will compile dependencies\n" 8 50
+
+# SQLite3
+dialog --title "$TITLE" --msgbox "\nConfiguring and compiling SQLite3 \n\n(this can take some time)\n" 8 50
+if [ "$SIMULATE" != "yes" ]; then
+	cd $PORT_DIR/databases/sqlite3
+	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive clean build-depends reinstall 2>> $ERROR >> $LOG &
+	dialog --exit-label "Ok" --tailbox $LOG 20 80
+else
+	sleep 1
+fi
+
+# MySQL-client
+dialog --title "$TITLE" --msgbox "\nConfiguring and compiling mysql-client \n\n(this can take some time)\n" 8 50
+if [ "$SIMULATE" != "yes" ]; then
+	cd $PORT_DIR/databases/mysql55-client
+	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive clean build-depends reinstall 
+	dialog --exit-label "Ok" --tailbox $LOG 20 80
+else
+	sleep 1
+fi
+
+#
+# Django
+#
+dialog --title "$TITLE" --msgbox "\nConfiguring and installing Django\n\nDon't forget enable FASTCGI, MYSQL and SQLITE flags.\n\n(this can take some time)\n" 6 50
+
+
+#copiar los fichero de
+#cp /usr/local/lib/sqlite3* jaula
+#ln -s /usr/local/include/sqlite3.h /root/test/progs/django/include/sqlite.h
+#ln -s /usr/local/include/sqlite3ext.h /root/test/progs/django/include/sqlite3ext.h
+
+# Re-install sqlite3
+#make PREFIX=/root/test/progs/django LOCALBASE=/root/test/progs/django FORCE_PKG_REGISTER=1 clean depends reinstall
+#pkg_remove -f py27-setuptools-0.6c11_3
+
+#/usr/ports/databases/py-MySQLdb
+if [ "$SIMULATE" != "yes" ]; then
+	# Creating links for compile
+	ln -s $PATH_INSTALL/bin/mysql_config /usr/local/bin/mysql_config
+
+	cd $PORT_DIR/www/py-django
+	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive install build-depends clean
+else
+	sleep 1
+fi
+
+#
+# Restoring
+#
+dialog --title "$TITLE" --infobox "Restoring make.conf file" 4 40; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+	mv /etc/make.conf.backup /etc/make.conf
+fi
+
+#
+# Delete links
+#
+if [ "$SIMULATE" != "yes" ]; then
+	unlink/usr/local/bin/mysql_config
+fi
+
+# Restore current dir
+cd $CURR_PATH

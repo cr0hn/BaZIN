@@ -1,0 +1,78 @@
+#!/bin/sh
+
+#
+# Check imput params
+#
+if [ $# -ne 2 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	BaZIN app installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 PATH_TO_INSTALL PORT_DIR\n\
+        " 10 60
+	exit
+fi
+
+#
+# Set vars
+#
+# Remove last /
+PATH_INSTALL=`echo $1 | sed 's/\/$//'g`
+PORT_DIR=`echo $2 | sed 's/\/$//'g`
+CURR_PATH=`pwd`
+
+#
+# Set logs files
+#
+if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
+	export LOG="${CURR_PATH}/info.log"
+	export ERROR="${CURR_PATH}/error.log"	
+fi
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN - Django installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN - Django installer (SIMULATION)"
+        else
+                export TITLE="BaZIN - Django installer"
+        fi
+else
+   export TITLE="BaZIN - Django installer (SIMULATION)"	
+fi
+ 
+#
+# Check the existence of dirs
+#
+if [ ! -d $PORT_DIR ] || [ ! -d $PATH_INSTALL  ] && [ "$SIMULATE" != "yes" ]; then
+	dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "- $PORT_DIR\nor\n-$PATH_INSTALL\n not exits" 8 60
+	exit
+fi
+
+#
+# Select the app to install it
+#
+APPS=$(ls apps/ | grep -v "^\..*")
+# Make menu
+MENU=""
+i=1
+for a in $APPS;
+do
+    MENU="$MENU $a ${a}-app on"
+    i=$(( i += 1 ))
+done
+
+dialog --checklist "Select the app you want install:" 11 42 $(echo $(( i -= 1))) $(echo $MENU) 2> .result.tmp
+
+for a in $(cat .result.tmp|sed 's/\"//g');
+do
+    case $a in
+        "nginx")
+            sh apps/nginx $PATH_INSTALL $PORT_DIR
+            ;;
+        "django")
+            sh apps/django  $PATH_INSTALL $PORT_DIR
+            ;;
+    esac
+done

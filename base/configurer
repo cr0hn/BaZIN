@@ -1,0 +1,157 @@
+#!/bin/bash
+
+#
+# Set BASE_DIR
+#
+if [ $# -ne 1 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	FreeBSD installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 BASE_DIRECTORY\n\
+        " 10 50
+	exit
+fi
+# Remove last /
+BASE_DIR=`echo $1 | sed 's/\/$//'g`
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN: Configurer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN: Configurer (SIMULATION)"
+        else
+                export TITLE="BaZIN: Configurer"
+        fi
+else
+        export TITLE="BaZIN: Configurer (SIMULATION)"        
+fi
+
+#
+# Check fo existence of dir
+#
+if [ ! -d $BASE_DIR ] && [ "$SIMULATE" != "yes" ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "$BASE_DIR does not exist" 5 40
+        exit    
+fi
+
+#
+# /etc/motd
+#
+dialog --title "$TITLE" --infobox "Setting new motd \n\n(backup in ${BASE_DIR}/motd.old)" 5 60; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+        cp ${BASE_DIR}/motd ${BASE_DIR}/motd.old 2> /dev/null
+        echo "Wellcome to the $(hostname).\n
+        This system was configured by cr0hn's BaZIN script\n
+        " > ${BASE_DIR}/motd
+fi
+
+#
+# /etc/make.conf
+#
+dialog --title "$TITLE" --infobox "Setting new make.conf \n\n(backup in ${BASE_DIR}/make.conf.old)" 5 60; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+        cp ${BASE_DIR}/make.conf ${BASE_DIR}/make.conf.old 2> /dev/null
+        echo -e "CPUTYPE?=core2 \n\
+        CFLAGS=-O3 -msse3 -pipe -fno-strict-aliasing -fstack-protector -fomit-frame-pointer -Wl,-z,relro -Wl,-z,now -D_FORTIFY_SOURCE=2 -fPIE -pie\n\
+        COPTFLAGS=O3 -msse3 -pipe -fno-strict-aliasing -fstack-protector -fomit-frame-pointer -funroll-loops -ffast-math -Wl,-z,relro -Wl,-z,now -D_FORTIFY_SOURCE=2 -fPIE -pie\n\
+        CXXFLAGS+=O3 -msse3 -pipe -fno-strict-aliasing -fstack-protector -fomit-frame-pointer -funroll-loops -ffast-math -Wl,-z,relro -Wl,-z,now -D_FORTIFY_SOURCE=2 -fPIE -pie\n\
+
+        FORCE_MAKE_JOBS=yes\n\
+        MAKE_JOBS_NUMBER=3\n\
+
+        OPTIMIZED_CFLAGS=YES\n\
+        WITHOUT_X11=YES\n\
+        BUILD_OPTIMIZED=YES\n\
+        WITH_CPUFLAGS=YES\n\
+        WITH_OPTIMIZED_CFLAGS=YES\n\
+        WITHOUT_DEBUG=YES\n\
+        BUILD_STATIC=YES\n\
+        NO_PROFILE=YES\n\
+
+        CC=clang
+        CXX=clang++
+        CPP=clang-cpp
+
+        # For CLANG \n\
+        NO_WERROR= \n\
+        WERROR= \n\
+
+        # Don't forget this when using Jails! \n\
+        NO_FSCHG=YES \n\
+        MALLOC_PRODUCTION=YES \n\
+        NO_SHARED=YES \n\
+        NO_CLEAN=YES \n\
+        " > ${BASE_DIR}/make.conf
+fi
+
+#
+# /etc/src.conf
+#
+dialog --title "$TITLE" --infobox "Setting new src.conf \n\n(backup in ${BASE_DIR}/src.conf.old)" 5 60; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+        cp ${BASE_DIR}/src.conf ${BASE_DIR}/src.conf.old 2> /dev/null
+        echo -e "
+        NO_CLEAN=YES\n\
+        COMPAT_LINUX32=NO\n\
+        WITH_ARM_EABI=NO\n\
+        WITH_CLANG_FULL=YES\n\
+        WITH_CLANG=YES\n\
+        WITH_CLANG_EXTRAS=YES\n\
+        WITH_CLANG_IS_CC=YES\n\
+        WITH_IDEA=YES\n\
+        WITHOUT_LEGACY_CONSOLE=YES\n\
+        WITHOUT_KERNEL_SYMBOLS=YES\n\
+        WITHOUT_INET6=YES\n\
+        WITHOUT_DICT=YES\n\
+        WITHOUT_HTML=YES\n\
+        WITHOUT_KERBEROS=YES\n\
+        WITHOUT_KERBEROS_SUPPORT=YES\n\
+        WITHOUT_BSNMP=YES\n\
+        WITHOUT_AMD=YES\n\
+        WITHOUT_ASSERT_DEBUG=YES\n\
+        WITHOUT_APM=YES\n\
+        WITHOUT_ATM=YES\n\
+        WITHOUT_LIB32=YES\n\
+        WITHOUT_BIND=YES\n\
+        WITHOUT_GAMES=YES\n\
+        WITHOUT_FLOPPY=YES\n\
+        WITHOUT_GCC=YES\n\
+        WITHOUT_GDB=YES\n\
+        WITHOUT_IPFILTER=YES\n\
+        WITHOUT_IPX=YES\n\
+        WITHOUT_IPX_SUPPORT=YES\n\
+        WITHOUT_MAIL=YES\n\
+        WITHOUT_BLUETOOTH=YES\n\
+        WITHOUT_NETGRAPH_SUPPORT=YES\n\
+        WITHOUT_PPP=YES\n\
+        WITHOUT_NTP=YES\n\
+        WITHOUT_RCMDS=YES\n\
+        WITHOUT_WIRELESS=YES\n\
+        WITHOUT_WIRELESS_SUPPORT=YES\n\
+        WITHOUT_WPA_SUPPLICANT_EAPOL=YES\n\
+        WITHOUT_ZFS=YES\n\
+        WITHOUT_USB=YES\n\
+        WITHOUT_TELNET=YES\n\
+        " > ${BASE_DIR}/src.conf
+fi
+
+#
+# /etc/rc.conf
+#
+dialog --title "$TITLE" --infobox "Securizing rc.conf \n\n(backup in ${BASE_DIR}/rc.conf.old)" 5 65; sleep 1
+if [ "$SIMULATE" != "yes" ]; then
+        cp ${BASE_DIR}/rc.conf ${BASE_DIR}/rc.conf.old 2> /dev/null
+        echo -e "
+        dumpdev=\"NO\"\n\
+        rpcbind_enable=\"NO\"\n\
+        sendmail_enable=\"NO\"\n\
+        inetd_enable=\"NO\"\n\
+        syslogd_flags=\"-ss\"\n\
+        " >> ${BASE_DIR}/rc.conf
+fi
+
+
+
+

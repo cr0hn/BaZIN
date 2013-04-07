@@ -1,0 +1,111 @@
+#!/bin/sh
+
+#
+#
+# This script creates the base jail system
+#
+#
+
+#
+# Check imput params
+# 
+if [ $# -ne 1 ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
+	FreeBSD installer by cr0hn (@ggdaniel)\n\n\
+	Usage: $0 BASE_DIRECTORY\n\
+        " 10 50
+	exit
+fi
+# Remove last /
+BASE_DIR=`echo $1 | sed 's/\/$//'g`
+CURR_PATH=`pwd`
+
+#
+# Set simulation
+#
+if [ "$SIMULATE" == "" ]; then
+        dialog --title "BaZIN - Jail installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
+        if [ $? -eq 0 ]; then # Yes
+                export SIMULATE="yes"
+                export TITLE="BaZIN - Jail installer (SIMULATION)"
+        else
+                export TITLE="BaZIN - Jail installer"
+        fi
+else
+   export TITLE="BaZIN - Jail installer (SIMULATION)"	
+fi
+
+#
+# Set logs files
+#
+if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
+	export LOG="${CURR_PATH}/info.log"
+	export ERROR="${CURR_PATH}/error.log"	
+fi
+
+
+# Check fo existence of dir
+if [ ! -d $BASE_DIR ] && [ "$SIMULATE" != "yes" ]; then
+        dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "$BASE_DIR does not exist" 5 40
+        exit    
+fi
+
+#
+# Create jails
+#
+if [ "$SIMULATE" == "" ]; then
+	mkdir ${BASE_DIR}/j ${BASE_DIR}/j/bjail
+fi
+cd ${BASE_DIR}usr/src
+dialog --title "$TITLE" --infobox "Install world into ${BASE_DIR}/j/bjail" 3 44; sleep 1
+
+if [ "$SIMULATE" == "" ]; then
+	make installworld DESTDIR=${BASE_DIR}/j/bjail >> $LOG 2>> $ERROR
+else
+	sleep 2
+fi
+
+#
+# Create skells
+#
+dialog --title "$TITLE" --infobox "Creating skels" 3 44; sleep 1
+if [ "$SIMULATE" == "" ]; then
+	mkdir ${BASE_DIR}/j/skel ${BASE_DIR}/j/skel${BASE_DIR} ${BASE_DIR}/j/skel${BASE_DIR}usr-X11R6
+	mv etc ${BASE_DIR}/j/skel
+	mv usr/local ${BASE_DIR}/j/skel${BASE_DIR}usr-local
+	mv tmp ${BASE_DIR}/j/skel
+	mv var ${BASE_DIR}/j/skel
+	mv root ${BASE_DIR}/j/skel
+fi
+
+#
+# Install configuration files
+#
+dialog --title "$TITLE" --infobox "Install config files" 3 44; sleep 1
+if [ "$SIMULATE" == "" ]; then
+	mergemaster -t ${BASE_DIR}/j/skel/var/tmp/temproot -D ${BASE_DIR}/j/skel -i 2>> $ERROR
+	cd ${BASE_DIR}/j/skel
+	rm -R bin boot lib libexec mnt proc rescue sbin sys usr dev
+fi
+
+#
+# Creating r/w directories
+#
+dialog --title "$TITLE" --infobox "Creating r/w directories" 3 44; sleep 1
+if [ "$SIMULATE" == "" ]; then
+	cd ${BASE_DIR}/j/bjail
+	mkdir s
+	ln -s s${BASE_DIR} etc
+	ln -s s${BASE_DIR} data
+	ln -s s/root root
+	ln -s ../s${BASE_DIR}usr-local usr/local
+	ln -s ../s${BASE_DIR}usr-X11R6 usr/X11R6
+	ln -s ../../s/distfiles usr/ports/distfiles
+	ln -s s/tmp tmp
+	ln -s s/var var
+fi
+
+#
+# Restore dir
+#
+cd $CURR_PATH
