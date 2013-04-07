@@ -42,3 +42,15 @@ Thanks
 Many thanks to:
 - @capi_x for their help.
 
+
+Screeshots
+==========
+
+- Start of installation:
+![start](https://raw.github.com/cr0hn/BaZIN/master/doc/screenshots/start.png)
+
+- Run the app installer:
+![App_installer](https://raw.github.com/cr0hn/BaZIN/master/doc/screenshots/app_installer.png)
+
+- Apply anti-fingerprinting techniques:
+![anti-fingerprinting](https://raw.github.com/cr0hn/BaZIN/master/doc/screenshots/nginx_antifigerprinting.png)
