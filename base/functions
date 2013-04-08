@@ -1,0 +1,7 @@
+gauge () {
+	echo $1 | dialog --gauge "\nPlease wait..." 8 50 0
+}
+
+prgbox () {
+	dialog --prgbox "" "$1" 22 74
+}

@@ -14,8 +14,7 @@ fi
 #
 # Set vars
 #
-# Remove last /
-BASE_DIR=`echo $1 | sed 's/\/$//'g`
+BASE_DIR="$1"
 CURR_PATH=`pwd`
 
 #
@@ -26,21 +25,6 @@ if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
 	export ERROR="${CURR_PATH}/error.log"	
 fi
 
-#
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN - Hardener" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN - Hardener (SIMULATION)"
-        else
-                export TITLE="BaZIN - Hardener"
-        fi
-else
-   export TITLE="BaZIN - Hardener (SIMULATION)"	
-fi
-
 
 #
 # Permissions
@@ -48,85 +32,85 @@ fi
 # Permissions: System binary
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nSystem binaries" 6 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	chmod o= ${BASE_DIR}sbin/dhclient 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/gpart 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/graid* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/fdisk 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/fsck* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/disklabel 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/dump* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/netstat 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/route* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/ip* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/pf* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/kld* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/mount* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/newfs* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/sysctl* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/tunefs 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/zfs 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/zpool 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/swap* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/reboot 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/nat* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/mdmfs 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/halt 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/init 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/mdconfig 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/poweroff 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/routed* 2>> $ERROR
-	chmod o= ${BASE_DIR}sbin/umount 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/dhclient 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/gpart 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/graid* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/fdisk 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/fsck* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/disklabel 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/dump* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/netstat 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/route* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/ip* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/pf* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/kld* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/mount* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/newfs* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/sysctl* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/tunefs 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/zfs 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/zpool 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/swap* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/reboot 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/nat* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/mdmfs 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/halt 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/init 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/mdconfig 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/poweroff 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/routed* 2>> $ERROR
+	chmod o= ${BASE_DIR}/sbin/umount 2>> $ERROR
 fi
 
 #  Permissions: User binary
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nUser binaries" 6 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	chmod o= ${BASE_DIR}usr/bin/crontab 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/at 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/atq 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/atrm 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/batch 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/cc 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/clang* 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/g++ 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/gcc 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/cpp 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/last 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/lastcomm 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/make 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/gmake 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/users 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/w 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/who 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/local/etc/*conf 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/chroot 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/j* 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/jls 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/lastlogin 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/makefs 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/mou* 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/pkg* 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/sbin/su 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/nc 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/bin/ncat 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/local/bin/nmap 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/local/bin/nessus 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/local/bin/ncat 2>> $ERROR
-	chmod o= ${BASE_DIR}usr/local/bin/netcat 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/crontab 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/at 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/atq 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/atrm 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/batch 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/cc 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/clang* 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/g++ 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/gcc 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/cpp 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/last 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/lastcomm 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/make 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/gmake 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/users 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/w 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/who 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/local/etc/*conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/chroot 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/j* 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/jls 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/lastlogin 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/makefs 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/mou* 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/pkg* 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/sbin/su 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/nc 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/bin/ncat 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/local/bin/nmap 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/local/bin/nessus 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/local/bin/ncat 2>> $ERROR
+	chmod o= ${BASE_DIR}/usr/local/bin/netcat 2>> $ERROR
 fi
 
 #  Permissions: Disable remote binaries
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nRemote binaries" 6 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	chmod ugo= ${BASE_DIR}usr/bin/rlog* 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rlogin 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rsh 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rpc* 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rup 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/ruptime 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rusers 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rwall 2>> $ERROR
-	chmod ugo= ${BASE_DIR}usr/bin/rwho 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rlog* 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rlogin 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rsh 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rpc* 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rup 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/ruptime 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rusers 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rwall 2>> $ERROR
+	chmod ugo= ${BASE_DIR}/usr/bin/rwho 2>> $ERROR
 fi
 
 #
@@ -134,8 +118,8 @@ fi
 #
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nMySQL config files" 6 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	chmod o= ${BASE_DIR}var/db/mysql/*cnf 2>> $ERROR
-	chmod o= ${BASE_DIR}var/db/mysql/*conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/var/db/mysql/*cnf 2>> $ERROR
+	chmod o= ${BASE_DIR}/var/db/mysql/*conf 2>> $ERROR
 fi
 
 #
@@ -143,24 +127,24 @@ fi
 #
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nSystem configuration files" 6 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	chmod o= ${BASE_DIR}etc/crontab 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/*conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/fstab 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/ftpusers 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/group 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/hosts 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/hosts.allow 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/hosts.equiv 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/hosts.lpd 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/inetd.conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/login.access 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/login.conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/newsyslog.conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/rc.conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/ssh/sshd_config 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/sysctl.conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/syslog.conf 2>> $ERROR
-	chmod o= ${BASE_DIR}etc/ttys 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/crontab 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/*conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/fstab 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/ftpusers 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/group 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/hosts 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/hosts.allow 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/hosts.equiv 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/hosts.lpd 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/inetd.conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/login.access 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/login.conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/newsyslog.conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/rc.conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/ssh/sshd_config 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/sysctl.conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/syslog.conf 2>> $ERROR
+	chmod o= ${BASE_DIR}/etc/ttys 2>> $ERROR
 fi
 
 #
@@ -168,9 +152,9 @@ fi
 #
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nSet 'OnlyAppend' flag to log files" 6 50; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	chmod o= ${BASE_DIR}var/log 2>> $ERROR
-	chflags sappnd ${BASE_DIR}var/log 2>> $ERROR
-	chflags sappnd ${BASE_DIR}var/log/* 2>> $ERROR
+	chmod o= ${BASE_DIR}/var/log 2>> $ERROR
+	chflags sappnd ${BASE_DIR}/var/log 2>> $ERROR
+	chflags sappnd ${BASE_DIR}/var/log/* 2>> $ERROR
 fi
 
 #
@@ -178,25 +162,25 @@ fi
 #
 dialog --title "$TITLE" --infobox "Restricting premissions for:\n\nOnly root can use 'cron' and 'at' commands" 6 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	echo "root" > ${BASE_DIR}var/cron/allow 2>> $ERROR
-	echo "root" > ${BASE_DIR}var/at/at.allow 2>> $ERROR
+	echo "root" > ${BASE_DIR}/var/cron/allow 2>> $ERROR
+	echo "root" > ${BASE_DIR}/var/at/at.allow 2>> $ERROR
 fi
 
 #
 # /etc/auth.conf
 #
-dialog --title "$TITLE" --infobox "Securizing auth.conf \n\n(backup in ${BASE_DIR}/auth.conf.old)" 5 60; sleep 1
+dialog --title "$TITLE" --infobox "Securizing auth.conf \n\n(backup in ${BASE_DIR}/etc/auth.conf.old)" 5 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/auth.conf ${BASE_DIR}/auth.conf.old 2> /dev/null
-        echo "crypt_default   = blf" > ${BASE_DIR}/auth.conf
+        cp ${BASE_DIR}/etc/auth.conf ${BASE_DIR}/etc/auth.conf.old 2> /dev/null
+        echo "crypt_default   = blf" > ${BASE_DIR}/etc/auth.conf
 fi
 
 #
 # /etc/ttys
 #
-dialog --title "$TITLE" --msgbox "Securizing ttys.\n\nNow root can login ONLY in tty 7 (backup in ${BASE_DIR}/ttys.old)" 8 60; sleep 1
+dialog --title "$TITLE" --msgbox "Securizing ttys.\n\nNow root can login ONLY in tty 7 (backup in ${BASE_DIR}/etc/ttys.old)" 8 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/ttys ${BASE_DIR}/ttys.old 2> /dev/null
+        cp ${BASE_DIR}/etc/ttys ${BASE_DIR}/etc/ttys.old 2> /dev/null
         echo -e "
         # when going to single-user mode.\n\
         console none                            unknown off insecure\n\
@@ -219,20 +203,20 @@ if [ "$SIMULATE" != "yes" ]; then
         ttyu3   "/usr/libexec/getty std.9600"   dialup  off insecure\n\
         # Dumb console\n\
         dcons   "/usr/libexec/getty std.9600"   vt100   off insecure\n\
-        " > ${BASE_DIR}/ttys
+        " > ${BASE_DIR}/etc/ttys
 fi
 
 #
 # /etc/auth.conf
 #
-dialog --title "$TITLE" --infobox "Securizing login.conf \n\n(backup in ${BASE_DIR}/login.conf.old)" 5 60; sleep 1
+dialog --title "$TITLE" --infobox "Securizing login.conf \n\n(backup in ${BASE_DIR}/etc/login.conf.old)" 5 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/login.conf ${BASE_DIR}/login.conf.old 2> /dev/null
+        cp ${BASE_DIR}/etc/login.conf ${BASE_DIR}/etc/login.conf.old 2> /dev/null
         echo -e "
         default:\\\ \n\
                 :passwd_format=blf:\\\ \n\
-                :copyright=${BASE_DIR}/COPYRIGHT:\\\ \n\
-                :welcome=${BASE_DIR}/motd:\\\ \n\
+                :copyright=${BASE_DIR}/etc/COPYRIGHT:\\\ \n\
+                :welcome=${BASE_DIR}/etc/motd:\\\ \n\
                 :setenv=MAIL=/var/mail/$,BLOCKSIZE=K,FTP_PASSIVE_MODE=YES:\\\ \n\
                 :path=/sbin /bin /usr/sbin /usr/bin /usr/games /usr/local/sbin /usr/local/bin ~/bin:\\\ \n\
                 :nologin=/var/run/nologin:\\\ \n\
@@ -265,21 +249,21 @@ if [ "$SIMULATE" != "yes" ]; then
                 :tc=default:\n\
         dialer:\\\ \n\
                 :tc=default:\n\
-        " > ${BASE_DIR}/login.conf
+        " > ${BASE_DIR}/etc/login.conf
 fi
 
 dialog --title "$TITLE" --infobox "Updating login database" 3 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then        
-        cap_mkdb ${BASE_DIR}/login.conf
+        cap_mkdb ${BASE_DIR}/etc/login.conf
 fi
 
 
 #
 # /etc/sysctf.conf
 #
-dialog --title "$TITLE" --infobox "Securizing sysctl.conf \n\n(backup in ${BASE_DIR}/sysctl.conf.old)" 5 60; sleep 1
+dialog --title "$TITLE" --infobox "Securizing sysctl.conf \n\n(backup in ${BASE_DIR}/etc/sysctl.conf.old)" 5 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-cp ${BASE_DIR}/sysctl.conf ${BASE_DIR}/sysctl.conf.old 2> /dev/null
+cp ${BASE_DIR}/etc/sysctl.conf ${BASE_DIR}/etc/sysctl.conf.old 2> /dev/null
         echo -e "
         # are being run under another UID.\n\
         security.bsd.see_other_gids=0\n\
@@ -329,16 +313,16 @@ cp ${BASE_DIR}/sysctl.conf ${BASE_DIR}/sysctl.conf.old 2> /dev/null
         kern.maxfiles=665535\n\
         kern.maxfilesperproc=60535\n\
         kern.ipc.somaxconn=4196\n\
-        " > ${BASE_DIR}/sysctl.conf
+        " > ${BASE_DIR}/etc/sysctl.conf
 fi
 
 
 #
 # /etc/rc.conf
 #
-dialog --title "$TITLE" --infobox "Securizing rc.conf \n\n(backup in ${BASE_DIR}/rc.conf.old)" 5 65; sleep 1
+dialog --title "$TITLE" --infobox "Securizing rc.conf \n\n(backup in ${BASE_DIR}/etc/rc.conf.old)" 5 65; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/rc.conf ${BASE_DIR}/rc.conf.old 2> /dev/null
+        cp ${BASE_DIR}/etc/rc.conf ${BASE_DIR}/etc/rc.conf.old 2> /dev/null
         echo -e "
         # Security options\n\
         clear_tmp_enable=\"YES\"\n\
@@ -347,7 +331,7 @@ if [ "$SIMULATE" != "yes" ]; then
         tcp_drop_synfin=\"YES\"\n\
         log_in_vain=\"YES\"\n\
         icmp_drop_redirect=\"YES\"\n\
-        " >> ${BASE_DIR}/rc.conf
+        " >> ${BASE_DIR}/etc/rc.conf
 fi
 
 
