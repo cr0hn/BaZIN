@@ -54,3 +54,7 @@ Screeshots
 
 - Apply anti-fingerprinting techniques:
 ![anti-fingerprinting](https://raw.github.com/cr0hn/BaZIN/master/doc/screenshots/nginx_antifigerprinting.png)
+
+
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/7c8e228abd7e7c4fa44f61d152627976 "githalytics.com")](http://githalytics.com/cr0hn/BaZIN)
