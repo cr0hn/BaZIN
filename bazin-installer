@@ -11,7 +11,7 @@
 #
 if [ `id -g` -ne 0 ]; then
 	dialog --title "BaZIN" --ok-label "Exit" --msgbox "You must be root to run BaZIN" 10 40
-	exit
+#	exit
 fi
 
 #
@@ -50,6 +50,7 @@ fi
 # Create base dir
 #
 dialog --title "Wellcome to $TITLE" --inputbox "Please provide the base dir to install" 10 50 2> .result.tmp
+
 # Remove last / from base dir
 BASE_DIR=`cat .result.tmp | sed 's/\/$//'g`
 
@@ -82,7 +83,7 @@ if [ $? -eq 0 ]; then # Yes
 
 	dialog --title "$TITLE" --infobox "\nConfiguring system\n\n" 5 34; sleep 1
 	# configurer BASE_DIRECTORY
-	sh base/configurer ${BASE_DIR}/etc
+	sh base/configurer ${BASE_DIR}
 fi
 
 
@@ -107,7 +108,7 @@ fi
 dialog --title "$TITLE: Hardening system" --yesno "Would you like to allow BaZIN to hardening your system?" 8 60
 if [ $? -eq 0 ]; then # Yes
 	dialog --title "$TITLE" --infobox "\nHardening the system\n" 5 34; sleep 1
-	sh base/hardening / # Hardening base system
+	sh base/hardening "" # Hardening base system
 fi
 
 dialog --title "$TITLE: Hardening jails" --yesno "Would you like to allow BaZIN to hardening your jails?" 8 60
@@ -135,3 +136,10 @@ fi
 # Delete temporal files
 #
 rm .result.tmp
+
+
+#
+# The end
+#
+dialog --msgbox "Installation completed.\nHave you fun :-)" 8 40
+clear

@@ -1,4 +1,5 @@
 #!/bin/sh
+. base/functions
 
 #
 #
@@ -7,7 +8,7 @@
 #
 
 #
-# Check imput params
+# Check input params
 # 
 if [ $# -ne 1 ]; then
         dialog --title "BaZIN: Error" --ok-label "Exit" --msgbox "\
@@ -19,21 +20,6 @@ fi
 # Remove last /
 BASE_DIR=`echo $1 | sed 's/\/$//'g`
 CURR_PATH=`pwd`
-
-#
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN - Jail installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN - Jail installer (SIMULATION)"
-        else
-                export TITLE="BaZIN - Jail installer"
-        fi
-else
-   export TITLE="BaZIN - Jail installer (SIMULATION)"	
-fi
 
 #
 # Set logs files
@@ -60,7 +46,7 @@ cd ${BASE_DIR}usr/src
 dialog --title "$TITLE" --infobox "Install world into ${BASE_DIR}/j/bjail" 3 44; sleep 1
 
 if [ "$SIMULATE" == "" ]; then
-	make installworld DESTDIR=${BASE_DIR}/j/bjail >> $LOG 2>> $ERROR
+	prgbox "make installworld DESTDIR=${BASE_DIR}/j/bjail 2>> $ERROR"
 else
 	sleep 2
 fi
@@ -83,7 +69,7 @@ fi
 #
 dialog --title "$TITLE" --infobox "Install config files" 3 44; sleep 1
 if [ "$SIMULATE" == "" ]; then
-	mergemaster -t ${BASE_DIR}/j/skel/var/tmp/temproot -D ${BASE_DIR}/j/skel -i 2>> $ERROR
+	prgbox "mergemaster -t ${BASE_DIR}/j/skel/var/tmp/temproot -D ${BASE_DIR}/j/skel -i 2>> $ERROR"
 	cd ${BASE_DIR}/j/skel
 	rm -R bin boot lib libexec mnt proc rescue sbin sys usr dev
 fi

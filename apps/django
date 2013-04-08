@@ -1,4 +1,5 @@
 #!/bin/sh
+. base/functions
 
 #
 # Check imput params
@@ -27,20 +28,6 @@ if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
 	export ERROR="${CURR_PATH}/error.log"	
 fi
 
-#
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN - Django installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN - Django installer (SIMULATION)"
-        else
-                export TITLE="BaZIN - Django installer"
-        fi
-else
-   export TITLE="BaZIN - Django installer (SIMULATION)"	
-fi
  
 #
 # Check the existence of dirs
@@ -76,8 +63,7 @@ dialog --title "$TITLE" --msgbox "\nNow will compile dependencies\n" 8 50
 dialog --title "$TITLE" --msgbox "\nConfiguring and compiling SQLite3 \n\n(this can take some time)\n" 8 50
 if [ "$SIMULATE" != "yes" ]; then
 	cd $PORT_DIR/databases/sqlite3
-	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive clean build-depends reinstall 2>> $ERROR >> $LOG &
-	dialog --exit-label "Ok" --tailbox $LOG 20 80
+	prgbox "make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive clean build-depends reinstall 2>> $ERROR "
 else
 	sleep 1
 fi
@@ -86,8 +72,7 @@ fi
 dialog --title "$TITLE" --msgbox "\nConfiguring and compiling mysql-client \n\n(this can take some time)\n" 8 50
 if [ "$SIMULATE" != "yes" ]; then
 	cd $PORT_DIR/databases/mysql55-client
-	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive clean build-depends reinstall 
-	dialog --exit-label "Ok" --tailbox $LOG 20 80
+	prgbox "make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive clean build-depends reinstall "
 else
 	sleep 1
 fi
@@ -113,7 +98,7 @@ if [ "$SIMULATE" != "yes" ]; then
 	ln -s $PATH_INSTALL/bin/mysql_config /usr/local/bin/mysql_config
 
 	cd $PORT_DIR/www/py-django
-	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive install build-depends clean
+	prgbox "make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 rmconfig rmconfig-recursive config config-recursive install build-depends clean"
 else
 	sleep 1
 fi

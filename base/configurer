@@ -10,23 +10,7 @@ if [ $# -ne 1 ]; then
         " 10 50
 	exit
 fi
-# Remove last /
-BASE_DIR=`echo $1 | sed 's/\/$//'g`
-
-#
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN: Configurer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN: Configurer (SIMULATION)"
-        else
-                export TITLE="BaZIN: Configurer"
-        fi
-else
-        export TITLE="BaZIN: Configurer (SIMULATION)"        
-fi
+BASE_DIR=$1
 
 #
 # Check fo existence of dir
@@ -39,20 +23,20 @@ fi
 #
 # /etc/motd
 #
-dialog --title "$TITLE" --infobox "Setting new motd \n\n(backup in ${BASE_DIR}/motd.old)" 5 60; sleep 1
+dialog --title "$TITLE" --infobox "Setting new motd \n\n(backup in ${BASE_DIR}/etc/motd.old)" 5 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/motd ${BASE_DIR}/motd.old 2> /dev/null
+        cp ${BASE_DIR}/etc/motd ${BASE_DIR}/etc/motd.old 2> /dev/null
         echo "Wellcome to the $(hostname).\n
         This system was configured by cr0hn's BaZIN script\n
-        " > ${BASE_DIR}/motd
+        " > ${BASE_DIR}/etc/motd
 fi
 
 #
 # /etc/make.conf
 #
-dialog --title "$TITLE" --infobox "Setting new make.conf \n\n(backup in ${BASE_DIR}/make.conf.old)" 5 60; sleep 1
+dialog --title "$TITLE" --infobox "Setting new make.conf \n\n(backup in ${BASE_DIR}/etc/make.conf.old)" 5 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/make.conf ${BASE_DIR}/make.conf.old 2> /dev/null
+        cp ${BASE_DIR}/etc/make.conf ${BASE_DIR}/etc/make.conf.old 2> /dev/null
         echo -e "CPUTYPE?=core2 \n\
         CFLAGS=-O3 -msse3 -pipe -fno-strict-aliasing -fstack-protector -fomit-frame-pointer -Wl,-z,relro -Wl,-z,now -D_FORTIFY_SOURCE=2 -fPIE -pie\n\
         COPTFLAGS=O3 -msse3 -pipe -fno-strict-aliasing -fstack-protector -fomit-frame-pointer -funroll-loops -ffast-math -Wl,-z,relro -Wl,-z,now -D_FORTIFY_SOURCE=2 -fPIE -pie\n\
@@ -83,15 +67,15 @@ if [ "$SIMULATE" != "yes" ]; then
         MALLOC_PRODUCTION=YES \n\
         NO_SHARED=YES \n\
         NO_CLEAN=YES \n\
-        " > ${BASE_DIR}/make.conf
+        " > ${BASE_DIR}/etc/make.conf
 fi
 
 #
 # /etc/src.conf
 #
-dialog --title "$TITLE" --infobox "Setting new src.conf \n\n(backup in ${BASE_DIR}/src.conf.old)" 5 60; sleep 1
+dialog --title "$TITLE" --infobox "Setting new src.conf \n\n(backup in ${BASE_DIR}/etc/src.conf.old)" 5 60; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/src.conf ${BASE_DIR}/src.conf.old 2> /dev/null
+        cp ${BASE_DIR}/etc/src.conf ${BASE_DIR}/etc/src.conf.old 2> /dev/null
         echo -e "
         NO_CLEAN=YES\n\
         COMPAT_LINUX32=NO\n\
@@ -134,22 +118,22 @@ if [ "$SIMULATE" != "yes" ]; then
         WITHOUT_ZFS=YES\n\
         WITHOUT_USB=YES\n\
         WITHOUT_TELNET=YES\n\
-        " > ${BASE_DIR}/src.conf
+        " > ${BASE_DIR}/etc/src.conf
 fi
 
 #
 # /etc/rc.conf
 #
-dialog --title "$TITLE" --infobox "Securizing rc.conf \n\n(backup in ${BASE_DIR}/rc.conf.old)" 5 65; sleep 1
+dialog --title "$TITLE" --infobox "Securizing rc.conf \n\n(backup in ${BASE_DIR}/etc/rc.conf.old)" 5 65; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-        cp ${BASE_DIR}/rc.conf ${BASE_DIR}/rc.conf.old 2> /dev/null
+        cp ${BASE_DIR}/etc/rc.conf ${BASE_DIR}/etc/rc.conf.old 2> /dev/null
         echo -e "
         dumpdev=\"NO\"\n\
         rpcbind_enable=\"NO\"\n\
         sendmail_enable=\"NO\"\n\
         inetd_enable=\"NO\"\n\
         syslogd_flags=\"-ss\"\n\
-        " >> ${BASE_DIR}/rc.conf
+        " >> ${BASE_DIR}/etc/rc.conf
 fi
 
 
