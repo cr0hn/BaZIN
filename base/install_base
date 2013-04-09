@@ -1,4 +1,5 @@
 #!/bin/sh
+. base/functions
 
 #
 # Check imput params
@@ -28,20 +29,6 @@ if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
 	export ERROR="${CURR_PATH}/error.log"	
 fi
 
-#
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN - Base installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN - Base installer (SIMULATION)"
-        else
-                export TITLE="BaZIN - Base installer"
-        fi
-else
-   export TITLE="BaZIN - Base installer (SIMULATION)"	
-fi
 
 #
 # Check the existence of dirs
@@ -59,10 +46,10 @@ e=`svn -h > /dev/null 2>&1 || echo "yes"`
 if [ "$e" == "yes" ]; then
 	dialog --title "$TITLE: Install subversion" --msgbox "Now will configure subversion..." 5 50
 	cd ${CURRENT_PORTS_DIR}/devel/subversion
-	make config-recursive
+	prgbox "make config-recursive"
 	dialog --title "$TITLE: Install subversion" --infobox "Install subversion\n\nThis can take some time" 5 50; sleep 1	
 	if [ "$SIMULATE" != "yes" ]; then
-		make install clean distclean >> $LOG 2>> $ERROR
+		prgbox "make install clean distclean 2>> $ERROR"
 	else
 		sleep 2
 	fi
@@ -85,8 +72,7 @@ fi
 dialog --title "$TITLE: Download sources" --msgbox "Install src system, using subversion, at directory: $SRC_DIR\n\nTHIS WILL TAKE A LOT OF TIME" 8 50
 if [ "$SIMULATE" != "yes" ]; then
 	#### TODO: Add list of mirrors
-	svn co svn://svn.freebsd.org/base/head $SRC_DIR >> $LOG 2>> $ERROR &
-	dialog --exit-label "Ok" --tailbox $LOG 20 80	
+	prgbox "svn co svn://svn.freebsd.org/base/head $SRC_DIR 2>> $ERROR"
 else
 	sleep 2
 fi
@@ -117,8 +103,7 @@ fi
 dialog --title "$TITLE: Download ports" --msgbox "Install new ports system, using subversion, at directory: $SRC_DIR\n\nTHIS WILL TAKE A LOT OF TIME" 8 50
 if [ "$SIMULATE" != "yes" ]; then	
 	#### TODO: Add list of mirrors
-	svn checkout svn://svn.freebsd.org/ports/head $PORTS_DST >> $LOG 2>> $ERROR &
-	dialog --exit-label "Ok" --tailbox $LOG 20 80
+	prgbox "svn checkout svn://svn.freebsd.org/ports/head $PORTS_DST 2>> $ERROR"
 fi
 
 #

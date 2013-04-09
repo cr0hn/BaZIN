@@ -28,21 +28,6 @@ if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
 fi
 
 #
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN - Django installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN - Django installer (SIMULATION)"
-        else
-                export TITLE="BaZIN - Django installer"
-        fi
-else
-   export TITLE="BaZIN - Django installer (SIMULATION)"	
-fi
- 
-#
 # Check the existence of dirs
 #
 if [ ! -d $PORT_DIR ] || [ ! -d $PATH_INSTALL  ] && [ "$SIMULATE" != "yes" ]; then

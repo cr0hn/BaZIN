@@ -1,4 +1,5 @@
 #!/bin/sh
+. base/functions
 
 #
 # Check imput params
@@ -25,21 +26,6 @@ CURR_PATH=`pwd`
 if [ "$LOG" == "" ] || [ "$ERROR" == "" ]; then
 	export LOG="${CURR_PATH}/info.log"
 	export ERROR="${CURR_PATH}/error.log"	
-fi
-
-#
-# Set simulation
-#
-if [ "$SIMULATE" == "" ]; then
-        dialog --title "BaZIN - Nginx installer" --yesno "Would you like to simulate the installation instead a real install?" 10 40
-        if [ $? -eq 0 ]; then # Yes
-                export SIMULATE="yes"
-                export TITLE="BaZIN - Nginx installer (SIMULATION)"
-        else
-                export TITLE="BaZIN - Nginx installer"
-        fi
-else
-   export TITLE="BaZIN - Nginx installer (SIMULATION)"	
 fi
 
 
@@ -134,7 +120,6 @@ if [ $? -eq 0 ]; then # Yes
 
 		esac												
 
-	echo "[*] Creating patch"
 	# Get server version
 	ORIGINAL_VERSION=`cat distinfo | grep -i \(nginx- | head -n 1 | awk '{print $2}' | awk -F "(" '{print $2}' | awk -F ")" '{print $1}' | awk -F "-" '{print $2}' | awk -F "." '{print $1"."$2"."$3}'`
 
@@ -189,8 +174,7 @@ fi
 #
 dialog --title "$TITLE" --infobox "Compiling (this can take some time)" 4 40; sleep 1
 if [ "$SIMULATE" != "yes" ]; then
-	make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 install clean >> $LOG 2>> $ERROR &
-	dialog --exit-label "Ok" --tailbox $LOG 20 80
+	prgbox "make PREFIX=$PATH_INSTALL LOCALBASE=$PATH_INSTALL FORCE_PKG_REGISTER=1 install clean >> $LOG "
 fi
 
 #
