@@ -19,7 +19,8 @@ What gives?
 ===========
 
 The project provide an easy way to:
-- Simulation mode.
+- Pure bash shell script -> no dependecies.
+- Simulation mode -> try BaZIN without change your system.
 - Apply ASLR Patch to FreeBSD kernel.
 - Easy instalation of the infrastructure.
 - Easy way to hardening of system.
